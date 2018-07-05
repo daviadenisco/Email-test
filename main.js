@@ -7,10 +7,23 @@
   1. Read documentation for "fetchEmailsFromDatabase" carefully
   2. Make use of "cursor" and "next" like paging results from APIs
 */
-
 function render() {
   // TODO 1: Your Code Here, grab all emails using fetchEmailsFromDatabase
-  return fetchEmailsFromDatabase(cursor = 0, callback);
+  let amtOfEmailsRendered = 0;
+  let allEmails = [];
+
+  function getEmails(obj) {
+    if (obj.next === null) {
+      renderEmails(getFilteredEmails(allEmails));
+      return;
+    }
+
+    amtOfEmailsRendered = obj.next;
+    allEmails = allEmails.concat(obj.result);
+    fetchEmailsFromDatabase(amtOfEmailsRendered, getEmails);
+  }
+
+  fetchEmailsFromDatabase(amtOfEmailsRendered, getEmails);
 }
 
 /*
@@ -27,6 +40,16 @@ function render() {
 
 function getFilteredEmails(allEmails = [], searchInputs = getSearchInputs()) {
   // TODO 2: Your Code Here, implement and run the fetched emails through getFilteredEmails
+  let filteredEmails = [];
+
+  searchInputs.forEach((input) => {
+    let emails = allEmails.filter((email) => {
+      return email['author'].includes(input) || email['subject'].includes(input) || email['body'].includes(input)
+    })
+    filteredEmails = filteredEmails.concat(emails)
+  })
+
+  return filteredEmails;
 }
 
 render();
